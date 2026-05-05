@@ -22,8 +22,9 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=notify
-ExecStartPre=/bin/mkdir -p ${MOUNT_DIR}
+Type=notify# First mount may take >90s while rclone warms the dir cache; bump the
+# default systemd start timeout so a slow first start isn't marked failed.
+TimeoutStartSec=300ExecStartPre=/bin/mkdir -p ${MOUNT_DIR}
 ExecStart=${RCLONE_BIN} mount ${REMOTE_NAME}: ${MOUNT_DIR} \\
   --vfs-cache-mode full \\
   --vfs-cache-max-age ${CACHE_MAX_AGE} \\
@@ -53,19 +54,25 @@ else
   systemctl --user enable --now "$SERVICE_NAME"
 fi
 
-# Give the mount a moment, then verify.
-sleep 2
+# Wait up to 60s for the mount to come up (first start can be slow while
+# rclone warms its dir cache).
+MOUNT_DIR_REAL="$(readlink -f "$MOUNT_DIR" 2>/dev/null || echo "$MOUNT_DIR")"
+deadline=$((SECONDS + 60))
+while (( SECONDS < deadline )); do
+  if mountpoint -q "$MOUNT_DIR_REAL" 2>/dev/null \
+     || mount | grep -qE " on (${MOUNT_DIR}|${MOUNT_DIR_REAL}) "; then
+    ok "Mount is live at $MOUNT_DIR"
+    ok "Service installed. Next: ./04-verify-mount.sh"
+    exit 0
+  fi
+  sleep 1
+done
+
 if ! systemctl --user is-active --quiet "$SERVICE_NAME"; then
   err "Service failed to start. Recent logs:"
   journalctl --user -u "$SERVICE_NAME" -n 30 --no-pager || true
   exit 1
 fi
 
-if mountpoint -q "$MOUNT_DIR" 2>/dev/null \
-   || mount | grep -qE " on ($MOUNT_DIR|$(readlink -f "$MOUNT_DIR" 2>/dev/null)) "; then
-  ok "Mount is live at $MOUNT_DIR"
-else
-  warn "Service is active but $MOUNT_DIR does not appear mounted yet; check logs"
-fi
-
-ok "Service installed. Next: ./04-verify-mount.sh"
+warn "Service is active but $MOUNT_DIR did not appear mounted within 60s; check logs"
+exit 1
