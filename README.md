@@ -74,8 +74,8 @@ The scripts assume the following are present on the system:
 ./99-uninstall.sh --purge-remote  # also delete the rclone remote config
 ```
 
-## Note on rclone use
-Rclone itself has no conflict handling — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup on Linux, consider other hosting options such as Syncthing or Dropbox which have a native client to handle conflicts.
+## Note on Google Drive use
+Rclone is a pragmatic choice for syncing with Google Drive. However it has no conflict handling — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup on Linux, consider other hosting options which do have a native client to handle conflicts, such as Syncthing or Dropbox.
 
 ## Disclaimer
 
