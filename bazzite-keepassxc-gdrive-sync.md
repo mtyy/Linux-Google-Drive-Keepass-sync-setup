@@ -84,7 +84,7 @@ You should see your top-level Drive folders (or be empty if you chose
 ### 3.1 Create the local mount directory
 
 ```bash
-mkdir -p ~/Cloud
+mkdir -p ~/GDrive
 ```
 
 ### 3.2 Create the systemd user unit
@@ -104,14 +104,14 @@ Wants=network-online.target
 
 [Service]
 Type=notify
-ExecStart=/home/linuxbrew/.linuxbrew/bin/rclone mount gdrive: %h/Cloud \
+ExecStart=/home/linuxbrew/.linuxbrew/bin/rclone mount gdrive: %h/GDrive \
   --vfs-cache-mode full \
   --vfs-cache-max-age 720h \
   --vfs-cache-max-size 5G \
   --vfs-write-back 5s \
   --dir-cache-time 1h \
   --umask 077
-ExecStop=/usr/bin/fusermount3 -u %h/Cloud
+ExecStop=/usr/bin/fusermount3 -u %h/GDrive
 Restart=on-failure
 RestartSec=10
 
@@ -125,7 +125,7 @@ Why these flags:
 |---|---|
 | `--vfs-cache-mode full` | **Required.** Makes the mount behave like a real local filesystem. KeePassXC's temp-file-then-rename save pattern only works with this mode. Without it, saves will fail or corrupt the DB. |
 | `--vfs-cache-max-age 720h` | Keep cached files for 30 days. Ensures your `.kdbx` is available offline and avoids needless re-downloads. The cache is small (KB–MB for a typical DB). |
-| `--vfs-cache-max-size 5G` | Safety valve. If you ever browse `~/Cloud` and accidentally open a large file (video, ISO), the cache won't eat your SSD — rclone evicts the least-recently-used files when this size is exceeded. Adjust to taste. |
+| `--vfs-cache-max-size 5G` | Safety valve. If you ever browse `~/GDrive` and accidentally open a large file (video, ISO), the cache won't eat your SSD — rclone evicts the least-recently-used files when this size is exceeded. Adjust to taste. |
 | `--vfs-write-back 5s` | Upload to Drive 5 seconds after the file is closed locally. |
 | `--dir-cache-time 1h` | Cache directory listings for 1h to reduce API calls. |
 | `--umask 077` | Make the mount and cached files private to your user. |
@@ -160,15 +160,15 @@ loginctl enable-linger "$USER"
 Confirm the mount is up:
 
 ```bash
-mount | grep Cloud      # should show a fuse.rclone entry
-ls ~/Cloud              # should list your Drive contents
+mount | grep GDrive      # should show a fuse.rclone entry
+ls ~/GDrive              # should list your Drive contents
 ```
 
 Run the **atomic-overwrite test** — this simulates exactly what KeePassXC does
 on save:
 
 ```bash
-cd ~/Cloud
+cd ~/GDrive
 echo "v1" > sync-test.txt
 echo "v2" > sync-test.tmp
 mv sync-test.tmp sync-test.txt   # overwrite via rename — the critical op
@@ -187,7 +187,7 @@ You should see `sync-test.txt` and **not** `sync-test.tmp`. That confirms the
 rename was applied server-side, not just locally. Then clean up:
 
 ```bash
-rm ~/Cloud/sync-test.txt
+rm ~/GDrive/sync-test.txt
 ```
 
 ---
@@ -196,7 +196,7 @@ rm ~/Cloud/sync-test.txt
 
 ### If your `.kdbx` is already on Google Drive
 
-Just open it from `~/Cloud/path/to/Passwords.kdbx` in KeePassXC.
+Just open it from `~/GDrive/path/to/Passwords.kdbx` in KeePassXC.
 
 ### If your `.kdbx` is currently local only
 
@@ -205,8 +205,8 @@ Pick one of:
 **Option A — copy via the mount (works with any scope):**
 
 ```bash
-mkdir -p ~/Cloud/KeePass
-cp ~/Passwords.kdbx ~/Cloud/KeePass/
+mkdir -p ~/GDrive/KeePass
+cp ~/Passwords.kdbx ~/GDrive/KeePass/
 ```
 
 **Option B — upload via rclone (required if you chose `drive.file` scope):**
@@ -215,9 +215,9 @@ cp ~/Passwords.kdbx ~/Cloud/KeePass/
 rclone copy ~/Passwords.kdbx gdrive:KeePass/
 ```
 
-Then open `~/Cloud/KeePass/Passwords.kdbx` in KeePassXC.
+Then open `~/GDrive/KeePass/Passwords.kdbx` in KeePassXC.
 
-> **Important:** always open the database from `~/Cloud/...`, never from the
+> **Important:** always open the database from `~/GDrive/...`, never from the
 > original local copy. Otherwise edits won't sync.
 
 ---
@@ -245,7 +245,7 @@ Open KeePassXC → **Settings**.
 ## How a save flows end-to-end
 
 1. You edit an entry in KeePassXC and press Save.
-2. KeePassXC writes to `~/Cloud/KeePass/Passwords.kdbx.tmp` (a real local file
+2. KeePassXC writes to `~/GDrive/KeePass/Passwords.kdbx.tmp` (a real local file
    inside the rclone cache), `fsync`s it, then `rename`s it over the original.
    All operations are local and atomic.
 3. ~5 seconds after the file is closed, rclone uploads the new `.kdbx` to
@@ -264,7 +264,7 @@ systemctl --user status rclone-gdrive.service
 journalctl --user -u rclone-gdrive.service -n 100 --no-pager
 ```
 
-Common causes: wrong `rclone` path in `ExecStart`, `~/Cloud` not empty before
+Common causes: wrong `rclone` path in `ExecStart`, `~/GDrive` not empty before
 mount (must be empty), token expired (re-run `rclone config reconnect gdrive:`).
 
 **`fusermount3: command not found`:**
@@ -285,7 +285,7 @@ to mitigate:
 
 1. **KeePassXC entry-level merge** — instead of `Database → Open`, use
    `Database → Tools → Synchronize Database with File…` and point it at the
-   `~/Cloud/...kdbx`. KeePassXC reads each entry's internal timestamps and
+   `~/GDrive/...kdbx`. KeePassXC reads each entry's internal timestamps and
    merges record-by-record, so changes on different entries from different
    devices are preserved even if both edits happened while offline.
 2. **Switch to `rclone bisync`** if you want filesystem-level conflict
@@ -317,8 +317,8 @@ Accounts" or any DE-specific cloud integration.
 systemctl --user disable --now rclone-gdrive.service
 rm ~/.config/systemd/user/rclone-gdrive.service
 systemctl --user daemon-reload
-fusermount3 -u ~/Cloud 2>/dev/null
-rmdir ~/Cloud
+fusermount3 -u ~/GDrive 2>/dev/null
+rmdir ~/GDrive
 rclone config       # then 'd' to delete the gdrive remote
 brew uninstall rclone
 ```
