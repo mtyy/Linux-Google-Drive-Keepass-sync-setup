@@ -47,7 +47,7 @@ The `99-uninstall.sh --remove-rclone` flag also assumes Homebrew. On other distr
 | 1 | `01-preflight.sh` | Installs `rclone` via Homebrew if missing, detects `rclone` and `fusermount[3]` paths, enables linger. | No |
 | 2 | `02-configure-rclone.sh` | Runs `rclone config` for the `gdrive` remote (skips if already configured). | **Yes** — browser auth |
 | 3 | `03-install-service.sh` | Generates and installs the systemd user unit using the paths detected in step 1, enables and starts it. | No |
-| 4 | `04-verify-mount.sh` | Runs the atomic-overwrite test against `~/Cloud` and verifies upload via `rclone lsf`. | No |
+| 4 | `04-verify-mount.sh` | Runs the atomic-overwrite test against `~/GDrive` and verifies upload via `rclone lsf`. | No |
 | — | `99-uninstall.sh` | Stops the service, unmounts, removes the unit (does **not** delete your data on Drive or uninstall rclone unless flagged). | No |
 
 ## Quick start
@@ -67,7 +67,7 @@ Or run the steps individually:
 ./04-verify-mount.sh
 ```
 
-After step 4 reports success, place your `.kdbx` under `~/Cloud/KeePass/` and
+After step 4 reports success, place your `.kdbx` under `~/GDrive/KeePass/` and
 open it in KeePassXC. See the main guide for the recommended KeePassXC
 settings.
 
@@ -78,7 +78,7 @@ The scripts read these environment variables (with defaults):
 | Variable | Default | Meaning |
 |---|---|---|
 | `REMOTE_NAME` | `gdrive` | rclone remote name |
-| `MOUNT_DIR` | `$HOME/Cloud` | local mount point |
+| `MOUNT_DIR` | `$HOME/GDrive` | local mount point |
 | `CACHE_MAX_SIZE` | `5G` | `--vfs-cache-max-size` |
 | `CACHE_MAX_AGE` | `720h` | `--vfs-cache-max-age` |
 | `WRITE_BACK` | `5s` | `--vfs-write-back` |
