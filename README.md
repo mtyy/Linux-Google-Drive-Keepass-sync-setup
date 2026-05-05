@@ -53,7 +53,7 @@ The `99-uninstall.sh --remove-rclone` flag also assumes Homebrew. On other distr
 ## Quick start
 
 ```bash
-cd bazzite-keepassxc-gdrive-sync
+cd Linux-Google-Drive-Keepass-sync-setup
 chmod +x *.sh
 ./00-install.sh            # runs all four steps; pauses for browser auth in step 2
 ```
