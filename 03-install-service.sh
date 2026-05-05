@@ -61,7 +61,8 @@ if ! systemctl --user is-active --quiet "$SERVICE_NAME"; then
   exit 1
 fi
 
-if mountpoint -q "$MOUNT_DIR" 2>/dev/null || mount | grep -q " on $MOUNT_DIR "; then
+if mountpoint -q "$MOUNT_DIR" 2>/dev/null \
+   || mount | grep -qE " on ($MOUNT_DIR|$(readlink -f "$MOUNT_DIR" 2>/dev/null)) "; then
   ok "Mount is live at $MOUNT_DIR"
 else
   warn "Service is active but $MOUNT_DIR does not appear mounted yet; check logs"

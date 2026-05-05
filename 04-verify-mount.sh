@@ -11,7 +11,12 @@ load_paths || die "run ./01-preflight.sh first"
 systemctl --user is-active --quiet "$SERVICE_NAME" \
   || die "$SERVICE_NAME is not active; run ./03-install-service.sh"
 
-if ! mount | grep -q " on $MOUNT_DIR "; then
+# Resolve symlinks so the check works on atomic distros where
+# /home is a symlink to /var/home (Bazzite, Silverblue, Kinoite, ...).
+MOUNT_DIR_REAL="$(readlink -f "$MOUNT_DIR" 2>/dev/null || echo "$MOUNT_DIR")"
+
+if ! mountpoint -q "$MOUNT_DIR_REAL" 2>/dev/null \
+   && ! mount | grep -qE " on (${MOUNT_DIR}|${MOUNT_DIR_REAL}) "; then
   die "$MOUNT_DIR is not mounted"
 fi
 

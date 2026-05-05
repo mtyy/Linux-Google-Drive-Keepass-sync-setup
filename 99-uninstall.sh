@@ -35,7 +35,9 @@ else
   log "Service $SERVICE_NAME not installed; skipping"
 fi
 
-if mount | grep -q " on $MOUNT_DIR "; then
+MOUNT_DIR_REAL="$(readlink -f "$MOUNT_DIR" 2>/dev/null || echo "$MOUNT_DIR")"
+if mountpoint -q "$MOUNT_DIR_REAL" 2>/dev/null \
+   || mount | grep -qE " on (${MOUNT_DIR}|${MOUNT_DIR_REAL}) "; then
   log "Unmounting $MOUNT_DIR..."
   [[ -n "${FUSERMOUNT_BIN:-}" ]] && "$FUSERMOUNT_BIN" -u "$MOUNT_DIR" || true
 fi
