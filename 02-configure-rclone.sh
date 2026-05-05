@@ -18,15 +18,17 @@ if "$RCLONE_BIN" listremotes | grep -qx "${REMOTE_NAME}:"; then
   exit 1
 fi
 
+# $REMOTE_NAME default is gdrive
 cat <<EOF
 
 ================================================================
 About to launch interactive 'rclone config' for remote: $REMOTE_NAME
 
 Answer the prompts as follows:
+  Remote name:         $REMOTE_NAME
   Storage type:        drive
   client_id / secret:  (leave blank)
-  scope:               1 (full)  or  3 (drive.file, safer)
+  scope:               1 (full)
   service_account:     (leave blank)
   Edit advanced:       n
   Use auto config:     y   <-- a browser will open for Google login
