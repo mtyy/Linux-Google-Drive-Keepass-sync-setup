@@ -14,14 +14,15 @@ cd Linux-Google-Drive-Keepass-sync-setup
 chmod +x *.sh
 ./00-install.sh            # runs all four scripts
 ```
+After that you can go to `~/GDrive/` (if you used the default) and open/add the KeePass database.
 
 ## Supported systems
-Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobora, Mint, Pop!_OS etc)
+Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobora, Mint, Pop!_OS, etc.).
 
 
-### Scripts
+## Scripts
 
-Step 1 (`01-preflight.sh`) tries to install `rclone` with `brew install rclone`. If you don't have Homebrew, **install `rclone` first using your distro's package manager**, then re-run step 1 — it will detect the existing binary and skip the brew step:
+Step 1 (`01-preflight.sh`) tries to install `rclone` with `brew install rclone`. If you don't have Homebrew, **install `rclone` first using your distro's package manager**, then re-run step 1 — it will detect the existing binary and skip the brew step.
 
 
 
@@ -47,6 +48,7 @@ The scripts read these environment variables (with defaults):
 | `CACHE_MAX_SIZE` | `5G` | `--vfs-cache-max-size` |
 | `CACHE_MAX_AGE` | `720h` | `--vfs-cache-max-age` |
 | `WRITE_BACK` | `5s` | `--vfs-write-back` |
+| `DIR_CACHE_TIME` | `1h` | `--dir-cache-time` |
 
 
 ## Dependencies & assumptions
@@ -72,10 +74,10 @@ The scripts assume the following are present on the system:
 ./99-uninstall.sh --purge-remote  # also delete the rclone remote config
 ```
 
-## Note on KeepassXC usecase
+## Note on KeePassXC usecase
 
 Rclone itself has no conflict detection — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup, consider other options such as [Syncthing](https://syncthing.net/) which creates conflict files instead of overwriting.
 
 ## Disclaimer
 
-This software is provided "as is", without warranty of any kind, express or implied. Use at your own risk
+This software is provided "as is", without warranty of any kind, express or implied. Use at your own risk.
