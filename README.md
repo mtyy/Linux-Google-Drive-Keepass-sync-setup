@@ -17,7 +17,7 @@ chmod +x *.sh
 After that you can go to `~/GDrive/` (if you used the default) and open/add the KeePass database.
 
 ## Supported systems
-Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobora, Mint, Pop!_OS, etc.).
+Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobara, Mint, Pop!_OS, etc.).
 
 
 ## Scripts
@@ -74,9 +74,8 @@ The scripts assume the following are present on the system:
 ./99-uninstall.sh --purge-remote  # also delete the rclone remote config
 ```
 
-## Note on KeePassXC usecase
-
-Rclone itself has no conflict detection — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup, consider other options such as [Syncthing](https://syncthing.net/) which creates conflict files instead of overwriting.
+## Note on rclone use
+Rclone itself has no conflict handling — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup on Linux, consider other hosting options such as Syncthing or Dropbox which have a native client to handle conflicts.
 
 ## Disclaimer
 
