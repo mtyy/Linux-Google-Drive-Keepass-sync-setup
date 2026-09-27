@@ -1,10 +1,8 @@
 # Setup script for automatic syncing with Google Drive using rclone
-> Tested for Bazzite + KeePassXC + Google Drive use case, but of course also works if you just want to sync your Google Drive this way.
+> Tested for Bazzite + KeePassXC + Google Drive use case
 
 The scripts automate the manual steps described here: [bazzite-keepassxc-gdrive-sync.md](bazzite-keepassxc-gdrive-sync.md).
 So you can follow the manual, or just run the script to get the same outcome.
-
-Each script is idempotent — safe to re-run.
 
 ## Quick start
 Use `00-install.sh` to run all scripts in order.
@@ -22,19 +20,20 @@ Since it only uses systemd to start rclone at login, it should work on most mode
 
 ## Scripts
 
-Step 1 (`01-preflight.sh`) tries to install `rclone` with `brew install rclone`. If you don't have Homebrew, **install `rclone` first using your distro's package manager**, then re-run step 1 — it will detect the existing binary and skip the brew step.
+Step 1 (`01-preflight.sh`) installs `rclone` with `brew install rclone`. If you don't have Homebrew, **install `rclone` first using your distro's package manager**, then re-run step 1 — it will detect the existing binary and skip the brew step.
+
+Each script is idempotent.
 
 
 
-| Step | Script | What it does | Interactive? |
-|---|---|---|---|
-| 0 | `00-install.sh` | Convenience wrapper: runs steps 1 → 4 in order, stopping on first failure. | **Yes** (delegates to step 2) |
-| 1 | `01-preflight.sh` | Installs `rclone` via Homebrew if missing, detects `rclone` and `fusermount[3]` paths, enables linger. | No |
-| 2 | `02-configure-rclone.sh` | Runs `rclone config` for the `gdrive` remote (skips if already configured). | **Yes** — browser auth |
-| 3 | `03-install-service.sh` | Generates and installs the systemd user unit using the paths detected in step 1, enables and starts it. | No |
-| 4 | `04-verify-mount.sh` | Runs the atomic-overwrite test against `~/GDrive` and verifies upload via `rclone lsf`. | No |
-| — | `99-uninstall.sh` | Stops the service, unmounts, removes the unit (does **not** delete your data on Drive or uninstall rclone unless flagged). | No |
-
+| Step | Script | What it does |
+|---|---|---|
+| 0 | `00-install.sh` | Convenience wrapper: runs steps 1 → 4 in order, stopping on first failure. |
+| 1 | `01-preflight.sh` | Installs `rclone` via Homebrew if missing, detects `rclone` and `fusermount[3]` paths, enables linger. |
+| 2 | `02-configure-rclone.sh` | Runs `rclone config` for the `gdrive` remote (skips if already configured). |
+| 3 | `03-install-service.sh` | Generates and installs the systemd user unit using the paths detected in step 1, enables and starts it. |
+| 4 | `04-verify-mount.sh` | Runs the atomic-overwrite test against `~/GDrive` and verifies upload via `rclone lsf`. |
+| — | `99-uninstall.sh` | Stops the service, unmounts, removes the unit (does **not** delete your data on Drive or uninstall rclone unless flagged). |
 
 
 ## Configuration
@@ -55,16 +54,16 @@ The scripts read these environment variables (with defaults):
 
 The scripts assume the following are present on the system:
 
-| Dependency | Used by | Notes |
-|---|---|---|
-| `bash` 4+ | all scripts | shebang is `/usr/bin/env bash` |
-| `systemd` with user-services | step 3, 4, 99 | `systemctl --user`, `journalctl --user` |
-| `loginctl` | step 1 | to enable user linger |
-| FUSE in kernel + `fusermount3` (or `fusermount`) in `/usr/bin` | step 3 | required for `rclone mount` |
-| `mount` / `mountpoint` | step 3, 4 | coreutils / util-linux |
-| **`rclone`** | step 1, 2, 3, 4 | step 1 will auto-install it **only via Homebrew** (see below) |
-| **Homebrew (`brew`)** | step 1, 99 | only required if `rclone` is not already installed; preinstalled on Bazzite/uBlue, **not** on most other distros |
-| A web browser (for OAuth) | step 2 | `rclone config` opens a browser for Google sign-in |
+| Dependency | Notes |
+|---|---|
+| `bash` 4+ | shebang is `/usr/bin/env bash` |
+| `systemd` with user-services | `systemctl --user`, `journalctl --user` |
+| `loginctl` | to enable user linger |
+| FUSE in kernel + `fusermount3` (or `fusermount`) in `/usr/bin` | required for `rclone mount` |
+| `mount` / `mountpoint` | coreutils / util-linux |
+| **`rclone`** | step 1 will auto-install it **only via Homebrew** (see below) |
+| **Homebrew (`brew`)** | only required if `rclone` is not already installed; preinstalled on Bazzite/uBlue, **not** on most other distros |
+| A web browser (for OAuth) | `rclone config` opens a browser for Google sign-in |
 
 ## Uninstall
 
