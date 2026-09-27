@@ -1,8 +1,10 @@
-# Setup script for automatic syncing with Google Drive using rclone
+# Setup script for automatic syncing with Google Drive
 > Tested for Bazzite + KeePassXC + Google Drive use case
 
 The scripts automate the manual steps described here: [bazzite-keepassxc-gdrive-sync.md](bazzite-keepassxc-gdrive-sync.md).
 So you can follow the manual, or just run the script to get the same outcome.
+
+Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobara, Mint, Pop!_OS, etc.).
 
 ## Quick start
 Use `00-install.sh` to run all scripts in order.
@@ -13,10 +15,6 @@ chmod +x *.sh
 ./00-install.sh            # runs all four scripts
 ```
 After that you can go to `~/GDrive/` (if you used the default) and open/add the KeePass database.
-
-## Supported systems
-Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobara, Mint, Pop!_OS, etc.).
-
 
 ## Scripts
 
@@ -38,7 +36,7 @@ Each script is idempotent.
 
 ## Configuration
 
-The scripts read these environment variables (with defaults):
+The scripts read these environment variables:
 
 | Variable | Default | Meaning |
 |---|---|---|
@@ -49,21 +47,6 @@ The scripts read these environment variables (with defaults):
 | `WRITE_BACK` | `5s` | `--vfs-write-back` |
 | `DIR_CACHE_TIME` | `1h` | `--dir-cache-time` |
 
-
-## Dependencies & assumptions
-
-The scripts assume the following are present on the system:
-
-| Dependency | Notes |
-|---|---|
-| `bash` 4+ | shebang is `/usr/bin/env bash` |
-| `systemd` with user-services | `systemctl --user`, `journalctl --user` |
-| `loginctl` | to enable user linger |
-| FUSE in kernel + `fusermount3` (or `fusermount`) in `/usr/bin` | required for `rclone mount` |
-| `mount` / `mountpoint` | coreutils / util-linux |
-| **`rclone`** | step 1 will auto-install it **only via Homebrew** (see below) |
-| **Homebrew (`brew`)** | only required if `rclone` is not already installed; preinstalled on Bazzite/uBlue, **not** on most other distros |
-| A web browser (for OAuth) | `rclone config` opens a browser for Google sign-in |
 
 ## Uninstall
 
