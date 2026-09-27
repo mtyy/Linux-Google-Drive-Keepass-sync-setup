@@ -1,10 +1,13 @@
 # Setup script for automatic syncing with Google Drive
-> Tested for Bazzite + KeePassXC + Google Drive use case
+**A poor mans Google Drive client: Creates a folder that is always synced to Google Drive.**
 
 The scripts automate the manual steps described here: [bazzite-keepassxc-gdrive-sync.md](bazzite-keepassxc-gdrive-sync.md).
 So you can follow the manual, or just run the script to get the same outcome.
 
-Since it only uses systemd to start rclone at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobara, Mint, Pop!_OS, etc.).
+Since it only uses `systemd` to start `rclone` at login, it should work on most modern Linux distros (Fedora, Ubuntu, Nobara, Mint, Pop!_OS, etc.).
+
+> Tested for Bazzite + KeePassXC + Google Drive use case
+
 
 ## Quick start
 Use `00-install.sh` to run all scripts in order.
@@ -56,8 +59,8 @@ The scripts read these environment variables:
 ./99-uninstall.sh --purge-remote  # also delete the rclone remote config
 ```
 
-## Note on Google Drive use
-Rclone is a pragmatic choice for syncing with Google Drive. However it has no conflict handling — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup on Linux, consider other hosting options which do have a native client to handle conflicts, such as Syncthing or Dropbox.
+## Warning on Google Drive
+Rclone is a pragmatic choice for syncing with Google Drive. However it has no conflict handling — if the same file is saved from two places before syncing, one version silently overwrites the other. For a more robust KeePass setup on Linux, consider other cloud hosts which do have a Linux client to handle conflicts, such as Syncthing or Dropbox.
 
 ## Disclaimer
 
